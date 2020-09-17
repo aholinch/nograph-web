@@ -1,0 +1,19 @@
+body {
+  background-color: rgb(95,95,95);
+  color: white;
+}
+h2 {
+  color: lightblue;
+}
+
+a:link {
+  color: hotpink;
+}
+
+a:visited {
+  color: hotpink;
+}
+
+a:hover {
+  color: blue;
+}

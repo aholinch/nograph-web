@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>NoGraph UI</title>
+<link rel="stylesheet" type="text/css" href="css/w3.css">
+<link rel="stylesheet" type="text/css" href="css/w3-theme-dark-grey.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.min.css">
+
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/jquery.dataTables.min.js"></script>
+<script src="js/graphclient.js"></script>
+<script src="js/schemautil.js"></script>
+<script src="js/noderender.js"></script>
+
+<script>
+
+// global
+var mainNodeID = null;
+var mainNode = null;
+var relInfo = null;
+var propMap = new Map();
+var currenttype = null;
+
+function initNode()
+{
+	var str = getParamFromLoc(window.location,"id");
+	mainNodeID = str;
+	var gc = new GraphClient();
+	gc.getNodeByID(str,nodeCallback);
+}
+
+function nodeCallback(node)
+{
+	mainNode = node;
+	currenttype = node.type;
+	
+	// ensure types are set
+	var gc = new GraphClient();
+	gc.getPropertyTypes(currenttype,function(data){
+		if(data != null && !(data===undefined)){
+			//console.log("props from server = ");
+			//console.log(data);
+			propMap.set(currenttype,data);
+			su_callNodeRenderFunction(node,node.type,"nodeproperties","nodetitle");
+		}
+	});
+
+	gc.getRelsForNode(mainNodeID,function(data){
+		if(data != null && !(data===undefined)){
+			//console.log("relinfo from server = ");
+			//console.log(data);
+			su_callRelRenderFunction(data,"relinfodiv");
+		}
+	});
+}
+
+function openRelTab(evt, reltype) {
+	  var i, x, tablinks;
+	  x = document.getElementsByClassName("relinfo");
+	  for (i = 0; i < x.length; i++) {
+	    x[i].style.display = "none";
+	  }
+	  tablinks = document.getElementsByClassName("tablink");
+	  for (i = 0; i < x.length; i++) {
+	    tablinks[i].className = tablinks[i].className.replace(" w3-pink", "");
+	  }
+	  document.getElementById("rel_"+reltype).style.display = "block";
+	  evt.currentTarget.className += " w3-pink";
+	}
+	
+function closeTabs()
+{
+	  var i, x, tablinks;
+	  x = document.getElementsByClassName("relinfo");
+	  for (i = 0; i < x.length; i++) {
+	    x[i].style.display = "none";
+	  }
+	  tablinks = document.getElementsByClassName("tablink");
+	  for (i = 0; i < x.length; i++) {
+	    tablinks[i].className = tablinks[i].className.replace(" w3-pink", "");
+	  }
+
+}
+</script>
+</head>
+
+<body onload="initNode()">
+
+
+
+<div class="w3-main">
+
+<header class="w3-container w3-theme" style="padding:10px 10px">
+  <h1 class="w3-xlarge"><span id="nodetitle">Node Info</span></h1>
+</header>
+
+<div class="w3-container" style="padding:8px">
+
+<!-- Node Properties -->
+<div class="w3-row">
+  <div class="w3-rest w3-l2" id="nodeproperties"><p>rest</p></div>
+</div> 
+<div class="w3-row">
+&nbsp;
+</div>
+<!-- Relationships -->
+<div class="w3-row">
+  <div class="w3-rest" id="relinfodiv">  
+  </div>
+</div>
+
+</div>
+
+<footer class="w3-container w3-theme" style="padding:4px">
+  <p><i>Powered by NoGraph</i></p>
+</footer>
+     
+
+<!--  end main -->
+</div>
+
+
+</body>
+</html>

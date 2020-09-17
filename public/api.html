@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>API Examples</title>
+<link rel="stylesheet" type="text/css" href="css/nograph.css">
+
+</head>
+<body>
+
+<a name="home"></a>
+<h1>API Calls</h1>
+<p>The API calls are divided into three sections.  The first is for schema metadata, then actual data, then asset calls.</p>
+<ul>
+<li><a href="#schema">Schema</a></li>
+<li><a href="#data">Data</a></li>
+<li><a href="#assets">Assets</a></li>
+</ul>
+<br/>
+<hr/>
+<hr/>
+
+
+<a name="schema"></a>
+<h1>Schema</h1>
+<p>The API includes several calls to return information about node and relationship types in the graph.</p>
+<br/>
+
+<h2>Node Types</h2>
+<p>To retrieve the list of node types call <a target="_blank" href="graph/listnodetypes">graph/listnodetypes</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Node Counts</h2>
+<p>You can also get the count of nodes for each type <a target="_blank" href="graph/nodecounts">graph/nodecounts</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Node Property Types</h2>
+<p>To retrieve the list of property types for a node type you can specify the type at the end of the URL or as a query parameter.</p>
+<p> <a target="_blank" href="graph/propsfornode/[nodetype]">graph/propsfornode/[nodetype]</a></p>
+<p> <a target="_blank" href="graph/propsfornode/?type=[nodetype]">graph/propsfornode/?type=[nodetype]</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Relationship Types</h2>
+<p>To retrieve the list of relationship types call <a target="_blank" href="graph/listreltypes">graph/listreltypes</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Relationship Counts</h2>
+<p>The number of relationship instances of each type is available <a target="_blank" href="graph/relcounts">graph/relcounts</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Relationship Property Types</h2>
+<p>To retrieve the list of property types for a relationship type you can specify the type at the end of the URL or as a query parameter.</p>
+<p> <a target="_blank" href="graph/propsforrel/[reltype]">graph/propsforrel/[reltype]</a></p>
+<p> <a target="_blank" href="graph/propsforrel/?type=[reltype]">graph/propsforrel/?type=[reltype]</a></p>
+<p>Back to <a href="#home">top</a>
+
+
+
+<br/>
+<hr/>
+<hr/>
+
+
+<a name="data"></a>
+<h1>Data</h1>
+<p>Data in the graph is accessed by either starting from a specific node and following its relationships or by searching the graph.</p>
+
+<br/>
+
+<h2>Node by ID</h2>
+<p>To retrieve the properties for a node specify the ID as the end of the URL or a query parameter.</p>
+<p><a target="_blank" href="graph/node/[id]">graph/node/[id]</a></p>
+<p><a target="_blank" href="graph/node?id=[id]">graph/node?id=[id]</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Relationship by ID</h2>
+<p>To retrieve the properties for a relationship specify the ID as the end of the URL 
+or a query parameter.  This method will return the metadata for both linked nodes as well.</p>
+<p><a target="_blank" href="graph/rel/[id]">graph/rel/[id]</a></p>
+<p><a target="_blank" href="graph/rel?id=[id]">graph/rel?id=[id]</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Relationships for Node</h2>
+<p>The set of relationships that a given node participates can be returned by using the node ID.
+The related nodes are put into a map because they may be in more than one relationship with this node.</p>
+<p><a target="_blank" href="graph/relsfornode/[id]">graph/relsfornode/[id]</a></p>
+<p><a target="_blank" href="graph/relsfornode?id=[id]">graph/relsfornode?id=[id]</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Search for Nodes</h2>
+<p>Node searching works well for string parameters.  
+The behavior with numerics is not so good.
+Use max=20 to limit the number of nodes returned to 20.
+</p>
+<p>To search just by node type try <a target="_blank" href="graph/nodes/?type=[nodetype]&max=20">graph/nodes/?type=[nodetype]&max=20</a></p>
+<p>Like parameters will be OR'd different ones will be AND'd. <a target="_blank" href="graph/nodes?param1=val1&param1=val2&param2=val3">graph/nodes?p1=val1&p1=val2&p2=val3</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Search for Relationships</h2>
+<p>
+Relationship searching is the same as for nodes for now. No real support for path queries yet.
+</p>
+<p>To search just by relationship type try <a target="_blank" href="graph/rels/?type=[reltype]&max=20">graph/rels/?type=[reltype]&max=20</a></p>
+<p>Like parameters will be OR'd different ones will be AND'd. <a target="_blank" href="graph/rels?param1=val1&param1=val2&param2=val3">graph/rels?p1=val1&p1=val2&p2=val3</a></p>
+<p>Back to <a href="#home">top</a>
+
+
+
+<br/>
+<hr/>
+<hr/>
+
+
+<a name="assets"></a>
+<h1>Assets</h1>
+<p>Assets are binary objects like images or files (PDF, Office, txt, etc.) that are useful to have
+connected with nodes and relationships but that don't make sense to have stored in the graph itself.
+A separate AssetManager is available to make the binary objects available as well as provides a
+searchable index of their metadata.
+</p>
+
+<br/>
+
+<h2>Asset by UUIID</h2>
+<p>To retrieve asset file specify the UUID as the end of the URL or a query parameter.</p>
+<p><a target="_blank" href="asset/[uuid]">asset/[uuid]</a></p>
+<p><a target="_blank" href="asset?uuid=[uuid]">asset?uuid=[uuid]</a></p>
+<p>Back to <a href="#home">top</a>
+
+<br/>
+<hr/>
+
+<h2>Search Assets</h2>
+<p>Assets have filenames, titles, descriptions, content, and tags.</p>
+<p><a target="_blank" href="asset/search/?title=[some title]">asset/search/?title=[some title]</a></p>
+<p><a target="_blank" href="asset/search/?content=[some content]">asset/search/?content=[some content]</a></p>
+<p>Back to <a href="#home">top</a>
+
+</body>
+</html>

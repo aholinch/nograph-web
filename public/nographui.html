@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>NoGraph Explorer</title>
+<link rel="stylesheet" type="text/css" href="css/w3.css">
+<link rel="stylesheet" type="text/css" href="css/w3-theme-dark-grey.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.min.css">
+
+<script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/jquery.dataTables.min.js"></script>
+<script src="js/graphclient.js"></script>
+<script src="js/schemautil.js"></script>
+
+<script>
+
+var typenames = [];
+var propMap = new Map();
+var currenttype = null;
+
+function schemaInit()
+{
+	var gc = new GraphClient();
+	gc.getNodeCounts(handleNodeCounts);
+}
+
+function handleNodeCounts(data)
+{
+	var types=Object.keys(data);
+	if(types == null || types === undefined || types.length == 0)
+	{
+		// no types
+		return;
+	}
+	
+	typenames=[];
+	
+	var buttonDiv = $("#nodeButtons");
+	buttonDiv.empty();
+	
+	for(var i=0; i<types.length; i++)
+	{
+		console.log(types[i]);
+		typenames.push(types[i]);
+		var str = types[i]+ " ("+data[types[i]]+")";
+		var btn = $('<input class="w3-btn w3-theme w3-round w3-hover-red w3-ripple" type="button" value="'+str+'" />');
+		btn.attr("id",'btnnt_'+types[i]);		
+		btn.click(function(){listNodes(this.id);});
+		var div = $('<div class="w3-column w3-center"></div>');
+		div.append(btn);
+		div = $('<div class="w3-row" style="padding:5px"></div>').append(div);
+		buttonDiv.append(div);
+	}
+	
+	console.log("cached type names = " + typenames);
+	setNodeTypesInSelect(typenames);
+}
+
+function listNodes(nodeType)
+{
+	if(nodeType == null || nodeType === undefined || nodeType.length == 0) return;
+	
+	if(nodeType.startsWith('btnnt_')) nodeType = nodeType.substring(6);
+	
+	console.log("listing nodes of type " + nodeType);
+	
+	currenttype = nodeType;
+	
+	var gc = new GraphClient();
+	var props = propMap.get(nodeType);
+	if(props == null || props == undefined)
+	{
+		gc.getPropertyTypes(nodeType,function(data){
+			if(data != null && !(data===undefined)){
+				propMap.set(currenttype,data);
+			}
+		});
+	}
+	gc.listNodes(nodeType,handleNodeSearchResults);
+}
+
+function handleNodeSearchResults(data)
+{
+	var cols = su_getTableColumnNames(currenttype,data);
+	var props = su_getTablePropertyNames(currenttype,data);
+	$('#restitle').text(currenttype+' - results');
+	console.log(cols);
+	console.log(props);
+	$('#tableHolder').empty();
+	var table = $('<table class="display" id="nodeTable"></table>');
+	$('#tableHolder').append(table);
+	
+	var nc = cols.length;
+	var head = $('<thead></thead>');
+	var body = $('<tbody></tbody>');
+	var row = null;
+	
+	// table head
+	row = $('<tr></tr>');
+	var th = null;
+	th = $('<th>Node ID</th>');
+	row.append(th);
+	for(var i=0; i<nc; i++)
+	{
+		th = $('<th>'+cols[i]+'</th>');
+		row.append(th);
+	}
+	head.append(row);
+	
+	// table body
+	var nr = data.length;
+	var node = null;
+	var td = null;
+	for(var i=0; i<nr; i++)
+	{
+        row = $('<tr></tr>');
+        node = data[i];
+        td = $('<td>'+node.id+'</td>');
+        row.append(td);
+        for(var j=0; j<nc; j++)
+       	{
+        	var val = su_getTablePropertyValue(node,props[j]);
+        	td = $('<td>'+val+'</td>');
+        	row.append(td);
+       	}
+        body.append(row);
+	}
+	
+	table.append(head);
+	table.append(body);
+	table.dataTable();
+
+	$('#nodeTable tbody').on('dblclick', 'tr', function () {
+		var table = $('#nodeTable').DataTable();
+        var data = table.row( this ).data();
+        su_openPageForNode(data[0],currenttype);
+    } );
+	
+	var tbl = $('#nodeTable').DataTable();
+	tbl.column( 0 ).visible( false );
+}
+
+function doSearch()
+{
+	var nt = document.getElementById('ntselect').selectedIndex;
+	
+	if(nt > 0)
+	{
+		 nt = document.getElementById('ntselect').options[nt].value;
+	}
+	else
+	{
+		alert("Please select a node type to search");	
+		return;
+	}
+
+	currenttype = nt;
+	var gc = new GraphClient();
+	var props = propMap.get(nt);
+	if(props == null || props == undefined)
+	{
+		gc.getPropertyTypes(nt,function(data){
+			if(data != null && !(data===undefined)){
+				propMap.set(nt,data);
+			}
+		});
+	}
+	//{"redditid":"rmqjs"}
+	
+	var pn = document.getElementById('propname').value;
+	var pv = document.getElementById('propval').value;
+	
+	var params = {};
+	if(pn != null && pv != null && !(pn===undefined || pv === undefined))
+	{
+		if(pn.length > 0 && pv.length > 0)
+		{
+			params[pn]=pv;		
+		}
+	}
+	gc.searchNodes(nt,100,params,handleNodeSearchResults);
+}
+
+function resetSearchForm()
+{
+	document.getElementById('ntselect').selectedIndex = 0;
+	$('#propRows').empty();
+}
+
+function resetSearchResults()
+{
+	$('#restitle').text('Search Results');
+	$('#tableHolder').empty();
+}
+
+function setNodeTypesInSelect(types)
+{
+	
+	var sel = $('#ntselect');
+	sel.empty();
+
+	var len = types.length;
+	var t = null;
+	var opt = null;
+	opt = $('<option value="-1">Select Node Type</option>');
+	sel.append(opt);
+	
+	for(var i=0; i<len; i++)
+	{
+		t = types[i];
+		opt = $('<option value="'+t+'">'+t+'</option>');
+		sel.append(opt);
+	}
+	
+	sel.on('change', function() {
+		  setFormNodeType( this.value );
+	});
+}
+
+function setFormNodeType(type)
+{
+	var props = propMap.get(type);
+	if(props == null || props == undefined)
+	{
+		var gc = new GraphClient();
+		
+		gc.getPropertyTypes(type,function(data){
+			if(data != null && !(data===undefined)){
+				propMap.set(type,data);
+				setFormNodeType(type);
+			}
+		});
+		
+		return;
+	}
+
+	$('#propRows').empty();
+	
+	addPropRow();
+}
+
+function addPropRow()
+{
+	var type = document.getElementById('ntselect').value;
+	var props = propMap.get(type);
+
+	var sel = $('<select id="propname" name="propname"></select>');
+	var len = props.length;
+	var t = null;
+	var opt = null;
+	
+	for(var i=0; i<len; i++)
+	{
+		t = props[i];
+		opt = $('<option value="'+t+'">'+t+'</option>');
+		sel.append(opt);
+	}
+	
+	var row = $('<div class="w3-row"></div>');
+	row.append($('<div class="w3-col s3">&nbsp;</div>'));
+	
+	var col = $('<div class="w3-col s3"></div>');
+    col.append(sel);
+    row.append(col);
+	col = $('<div class="w3-col s3"></div>');
+    var inp = $('<input type="text" value="" id="propval" name="propval" />');
+    col.append(inp);
+    row.append(col);
+ 	row.append($('<div class="w3-col s3">&nbsp;</div>'));
+ 	
+	$('#propRows').append(row);
+}
+
+</script>
+</head>
+<body onload="schemaInit()">
+
+
+
+<div class="w3-main">
+
+<header class="w3-container w3-theme" style="padding:6px 12px">
+  <h1 class="w3-xxlarge">NoGraph Explorer</h1>
+</header>
+
+<div class="w3-container" style="padding:8px">
+
+<div class="w3-row">
+  <div class="w3-col" style="width:200px">
+  <div id="nodeButtons">
+  </div>
+  </div>
+  <div class="w3-rest">
+  <div class="w3-container w3-center">
+	  <div class="w3-row">
+	  <div class="w3-col w3-center">
+	  <div class="w3-row">
+	     <div class="w3-col s3">&nbsp;</div>
+	     <div class="w3-col s3">
+	  		<b>Node Type:</b>
+	  	 </div>
+	     <div class="w3-col s3">
+	  		<select id="ntselect">
+	  		<option value="-1">Select Node Type</option>
+	  		</select>
+	  	 </div>
+	     <div class="w3-col s3">&nbsp;</div>
+	  </div>
+	  
+	  <div class="w3-container" id="propRows">
+	  
+	  </div>
+	  
+	  <div class="w3-row">
+		  <div id="propformrows" class="w3-container">
+		  </div>
+	  </div>
+	  </div>
+	  </div>
+	  <div class="w3-row">
+	    <div class="w3-col w3-center">
+	    <div class="w3-bar">
+	    <input class="w3-btn w3-theme-l1 w3-hover-blue w3-border-blue w3-round-large" type="button" value="Search Nodes" onclick="doSearch()"/>
+	    <input class="w3-btn w3-theme-l1 w3-hover-blue w3-border-blue w3-round-large" type="button" value="Clear Form" onclick="resetSearchForm()"/>
+	    <input class="w3-btn w3-theme-l1 w3-hover-blue w3-border-blue w3-round-large" type="button" value="Clear Results" onclick="resetSearchResults()"/>
+	    </div>
+	    </div>
+	  </div>  
+  </div> <!--  end search form w3-container -->
+  </div>
+</div> 
+
+<div class="w3-row">
+  <div class="w3-rest">
+    <div class="w3-row w3-center w3-theme-l1" style="padding:5px"><h3><span id="restitle">Search Results</span></h3></div>
+	<div class="w3-row">
+  	  <div class="w3-rest w3-center">
+  	  <div id="tableHolder"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<footer class="w3-container w3-theme" style="padding:4px">
+  <p><i>Powered by NoGraph</i></p>
+</footer>
+     
+
+<!--  end main -->
+</div>
+
+
+</body>
+</html>
