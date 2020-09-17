@@ -31,7 +31,8 @@ public class TomcatRunner
     	{
             Tomcat tomcat = new Tomcat();
             tomcat.setPort(8080);
-
+            tomcat.getConnector().setURIEncoding("UTF-8");
+            
             Context ctx = tomcat.addContext("/nograph", new File("public").getAbsolutePath());
             Tomcat.initWebappDefaults(ctx);
             

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.nograph.GraphQuery;
 import org.nograph.GraphQuery.Criterion;
@@ -32,6 +33,40 @@ import org.nograph.GraphQuery.SimpleCriterion;
 public class WebUtil 
 {
 	public static final String JSON = "application/json";
+	
+	/**
+	 * Ensure request params are treated as UTF-8 if no encoding specified.
+	 * 
+	 * @param request
+	 */
+	public static void setUTF8(HttpServletRequest request)
+	{
+		try
+		{
+			request.setCharacterEncoding("UTF-8");
+		}
+		catch(Exception ex)
+		{
+			// quiet!
+		}
+	}
+	
+	/**
+	 * Ensure response encoding is UTF-8.
+	 * 
+	 * @param request
+	 */
+	public static void setUTF8(HttpServletResponse response)
+	{
+		try
+		{
+			response.setCharacterEncoding("UTF-8");
+		}
+		catch(Exception ex)
+		{
+			// quiet!
+		}
+	}
 	
 	/**
 	 * For a URL like /[part1]/[part2] or /[part1]/[part2]/ it will return [part2].

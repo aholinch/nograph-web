@@ -147,6 +147,7 @@ public class AssetServlet extends HttpServlet
 		logger.info("Asset search query = " + query);
 		try
 		{
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			List<Asset> assets = assetManager.findAssets(query);
 			PrintWriter pw = response.getWriter();

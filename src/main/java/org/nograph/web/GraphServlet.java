@@ -134,6 +134,7 @@ public class GraphServlet extends HttpServlet
 			List<String> types = gm.getNodeTypes();
 			String str = WebUtil.listToJSONArray(types);
 			
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			pw.write(str);
@@ -156,6 +157,7 @@ public class GraphServlet extends HttpServlet
 			JSONObject obj = new JSONObject(m);
 			String str = obj.toString();
 			
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			pw.write(str);
@@ -176,6 +178,7 @@ public class GraphServlet extends HttpServlet
 			List<String> types = gm.getRelationshipTypes();
 			String str = WebUtil.listToJSONArray(types);
 			
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			pw.write(str);
@@ -198,6 +201,7 @@ public class GraphServlet extends HttpServlet
 			JSONObject obj = new JSONObject(m);
 			String str = obj.toString();
 			
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			pw.write(str);
@@ -225,6 +229,7 @@ public class GraphServlet extends HttpServlet
 			List<String> props = gm.getPropertyNamesForNodeType(type);
 			String str = WebUtil.listToJSONArray(props);
 			if(str==null || str.trim().length() == 0) str = "[]";
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			pw.write(str);
@@ -253,6 +258,7 @@ public class GraphServlet extends HttpServlet
 			String str = WebUtil.listToJSONArray(props);
 			if(str==null || str.trim().length() == 0) str = "[]";
 
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			pw.write(str);
@@ -281,6 +287,7 @@ public class GraphServlet extends HttpServlet
 			
 			if(node != null)
 			{
+				WebUtil.setUTF8(response);
 				response.setContentType(WebUtil.JSON);
 				PrintWriter pw = response.getWriter();
 				String str = node.toJSONString();
@@ -326,6 +333,7 @@ public class GraphServlet extends HttpServlet
 			
 			nodes = gm.findNodes(gq);
 			
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			
@@ -374,6 +382,7 @@ public class GraphServlet extends HttpServlet
 			
 			rels = gm.findRelationships(gq);
 			
+			WebUtil.setUTF8(response);
 			response.setContentType(WebUtil.JSON);
 			PrintWriter pw = response.getWriter();
 			
@@ -443,6 +452,7 @@ public class GraphServlet extends HttpServlet
 					JSONObject obj = new JSONObject(out);
 					String str = obj.toString();
 
+					WebUtil.setUTF8(response);
 					response.setContentType(WebUtil.JSON);
 					PrintWriter pw = response.getWriter();
 					pw.write(str);
@@ -473,6 +483,7 @@ public class GraphServlet extends HttpServlet
 			
 			if(rel != null)
 			{
+				WebUtil.setUTF8(response);
 				response.setContentType(WebUtil.JSON);
 				PrintWriter pw = response.getWriter();
 				String str = rel.toJSONString();
