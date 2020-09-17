@@ -117,11 +117,7 @@ public class GraphServlet extends HttpServlet
 	{
 		// use just one for now
     	NoGraphConfig config = NoGraph.getInstance().getConfig();
-    	//config.setProperty(LuceneGraphManager.PROP_ND, "/data/dev/workspace/nographscratch/test/reddit/nodes");
-    	//config.setProperty(LuceneGraphManager.PROP_RD, "/data/dev/workspace/nographscratch/test/reddit/rels");
-    	//config.setProperty(LuceneGraphManager.PROP_ND, "/data/dev/workspace/nographscratch/test/stack/nodes");
-    	//config.setProperty(LuceneGraphManager.PROP_RD, "/data/dev/workspace/nographscratch/test/stack/rels");
-    	config.setProperty("graphman.class", "org.nograph.impl.Neo4jGraphManager");
+
     	config.setProperty("graphman.class", "org.nograph.impl.ElasticGraphManager");
     	config.setProperty("meta.dir","/data/dev/workspace/vger/");
     	

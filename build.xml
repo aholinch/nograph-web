@@ -17,6 +17,9 @@ http://ant.apache.org/manual/tutorial-HelloWorldWithAnt.html
   <property name="lib.dir"     value="lib"/>
   <property name="nograph.dir"     value="../nograph"/>
   <property name="nograph.classes.dir" value="${nograph.dir}/build/classes"/>
+  <property name="nographconn.dir"     value="../nograph-connectors"/>
+  <property name="nographconn.classes.dir" value="${nographconn.dir}/build/classes"/>
+  <property name="nographconn.lib.dir" value="${nographconn.dir}/lib"/>
 
   <path id="classpath">
         <dirset dir="${classes.dir}" />
@@ -34,6 +37,11 @@ http://ant.apache.org/manual/tutorial-HelloWorldWithAnt.html
         </fileset>
     <pathelement location="${classes.dir}"/>
     <pathelement location="${test.build.dir}"/>
+    <dirset dir="${nographconn.classes.dir}" />
+        <fileset dir="${nographconn.lib.dir}">
+            <include name="*.jar" />
+            <include name="**/*.jar" />
+        </fileset>
   </path>
 
   <target name="clean">
@@ -80,7 +88,13 @@ http://ant.apache.org/manual/tutorial-HelloWorldWithAnt.html
     </javac>
   </target>
 
-  <target name="tomcat" depends="test-compile">
+  <target name="tomcat" depends="jar,test-compile">
+        <java fork="true" classname="org.nograph.web.TomcatRunner">
+            <classpath>
+                <path refid="classpath"/>
+                <path refid="classpath.tomcat"/>
+            </classpath>
+        </java>
   </target>
 
 </project>
